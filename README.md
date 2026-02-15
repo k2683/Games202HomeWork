@@ -186,3 +186,21 @@ light transport即使投影到了i方向上的基函数,所得到的仍然是一
 
 这里看出来PRT Glossy比Diffuse 效率要差很多,而当Glossy非常高频的时候,也就是接近镜面反射的情况的时候, PRT就没有那么好用，我们虽然可以采用更高阶的SH来描述高频信息,但是使用SH甚至远不如直接采样方便。
 
+# Homework
+
+<img width="452" height="97" alt="image" src="https://github.com/user-attachments/assets/86b0bb20-fa2b-4859-9ed1-5b96ef021e62" />
+
+对任意定义在球面上的函数，把它与每个球谐基函数做球面积分（内积），得到对应的系数，这样就完成了球谐展开。
+
+在实际中通常通过采样和加权求和进行数值近似。
+
+$$
+L_{DS} = \frac{\rho}{\pi} \int_{S} L_i(x \ \omega_i) V(\omega_i) \max(N_x \cdot \omega_i \ 0) \, d\omega_i
+$$
+
+用delta area来近似$$d_w$$
+
+$$L_i$$直接从image上采样
+
+对于多次bounce的情况，作业里简化为无损耗的全反射，因此最后结果只要直接加上之前hit point的球谐函数的系数就可
+
