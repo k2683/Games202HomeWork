@@ -69,7 +69,7 @@ PCSS的三个步骤
 
 离光源越近，遮挡物会少,所以需要在Shadow map上的一个大区域内查找blocker.
 <img width="687" height="503" alt="image" src="https://github.com/user-attachments/assets/d2f919aa-b9a7-4ca3-a268-c1c617e67587" />
-## Variance soft shadow mapping
+## Variance soft shadow mapping(VSSM)
 在做PCF的时候我们要判断邻域的depth和当前depth的大小来得到平均的visualibility，这个过程比较慢，我们可以假设所有的分布是一个正态分布
 
 因此想要知道邻域有多少depth大于自己<=>求出范围内有百分之多少的像素比它浅
