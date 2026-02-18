@@ -116,4 +116,68 @@ BRDF是Diffuse的—BRDF（fr）是常数ρ/π
 
 方法是在shading point附近的半径为R的球面里随机sample一些点，然后通过深度判断从camera是否能看到，从而估算被遮挡的比例
 
+## HBAO
+
+和SSAO的主要区别是有了法线方向以后可以在半球上采样
+
+## Screen space Direction Occlusion （SSDO）
+SSAO的重要假设是间接光照处处相等都是一个常数，SSDO里去除掉这个假设
+
+SSDO会通过入射光线是否打到物体来计算入射光的大小(类似path tracing的想法)
+
+<img width="868" height="523" alt="image" src="https://github.com/user-attachments/assets/85675a24-2a49-48b2-ba06-c5b20164ae86" />
+
+SSAO和SSDO的想法是相反的
+
+SSAO的想法是打出光线如何碰到物体说明这根光线被挡到，因此接收不到光
+
+SSDO的想法是打出光纤如果碰到物体说明能接收到该物体作为次级光源发出的光，碰不到物体才没有光
+
+因为对于AO我们假设间接光照是从比较远的地方来的，在DO中,我们认为红色框里接收的是直接光照,而黄色框里才是接收到的间接光照.因为红色框里的光线打不到用来反射的面，因此这些方向上就不会有间接光照，黄色框里的光线能打到物体上，P点接收到的是来自红色框的直接光照+黄色框里的间接光照,也就是假设间接光照是从比较近的反射物来的。
+
+<img width="891" height="527" alt="image" src="https://github.com/user-attachments/assets/bc1bcb18-c372-4f9d-b841-7fdb5d4db121" />
+
+SSDO的逻辑是这里A/B/D这三个点的深度比从camera看去的最小深度深,也就是说PA,PB,PD方向会被物体挡住,因此会为P点提供间接光照。这样的逻辑当然会产生一些问题。
+
+SSDO的缺点除了依赖camera view计算光照以外，还有就是它只能解决一个很小范围内的全局光照
+
+## Screen space Reflection（SSR）
+基础的SSR算法：镜面反射
+
+对于任何一个像素:
+
+知道shading point的观察方向后,可以得出其反射方向
+
+从Shading point点沿着反射方向延长找到与屏幕的壳的交点
+
+将交点的颜色作为反射的颜色记录到shading point。
+
+### 怎么求反射光与场景的相交?
+
+Linear Raymarch
+
+
+<img width="934" height="418" alt="image" src="https://github.com/user-attachments/assets/c27f21d1-e85d-49ab-ac1a-238c92588960" />
+
+我们是为了找到反射光与场景“壳”的交点:
+
+沿着反射方向以一个固定的步长逐步前进,并将每次停止时的深度与壳的深度进行比较,如果浅于壳,则继续前进,比壳深,则停止求交,也就是我们用深度来进行可见性判断
+质量取决于步长的大小，步长小越精准，同时计算量也越大，因此步长太大太小都不行，在没有SDF的情况下，步长只能是一个定值。
+
+由于步长是由我们来决定的,太长太短都有其各自的问题,因此我们引入另一种动态决定步长的方法:
+Hierachical ray trace 其思路有些像计网里的TCP拥塞控制
+
+为了这个我们需要做一个准备工作,把场景的深度图,做一个mip-map,但这个高一级的mipmap记录的是四个像素中深度的最小值
+
+那么如果一根光线与mip-map中的上层结点不相交,那他肯定也不会与这个结点的子节点相交.
+
+至此我们完成了屏幕空间光线追踪的部分,但是我们还没完成如何计算shading.
+
+这部分与路径追踪的方法完全相同，仅仅是把光线与场景求交变成了光线与“壳”求交，因此路径追踪的算法在这里是可以直接使用的。
+
+对于任何一个shading point，看到的radicance就是对半球进行积分,如果是specular的物体,那么相当于光线打到物体的哪里,就用它所发出的radiance就可以.
+
+如果是glossy情况下,同样的用蒙特卡洛多采样几根光线,不管怎么所打到的物体反射过来的radiance,一定就是shading point点接收到的incident radiance.
+
+这里我们同样需要假设反射物/次级光源 是Diffuse的情况,地板之类的接收物可以是任何物体.
 
