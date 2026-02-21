@@ -148,11 +148,30 @@ Favg->平均菲涅尔项:
 
 
 ## Linearly Transformed Cosines(LTC->线性变换的余弦)
-TC是为了解决microfacet models的shading问题,但是它有一些限制:
+LTC是为了解决microfacet models的shading问题,但是它有一些限制:
 
 1. 主要是针对GGX模型,对于其他模型原理也同样适用.
 
 2. 做的是不考虑shadow的shading
 
 3. 光源是多边形光源,且发出的radiance时uniform的.
+
+LTC的思路是直接算出积分结果，如果没有Ltc这个方法我们需要采样,在多边形光源上我们需要取很多采样点
+
+它的核心思想是从余弦分布出发，通过线性变换得到各种球面分布，并能对多边形光源做解析积分。
+
+这里我听得不是很懂，先贴上OpenGL的tutorial，有空了再补
+
+https://learnopengl.com/Guest-Articles/2022/Area-Lights
+
+## Disney's principle BRDF
+微表面模型的效果虽然很好,但是不能表示出所有的材质,比如真实材质就无法表示.因为微表面模型最多解释一层材质,而无法解释多层材质.
+
+而且微表面模型对美术来说并不好用.
+
+因此除了PBR材质,还有artist friendly材质,他的代表就是Disney's principle BRDF.
+
+它由一些参数控制表面，比如subsurface，metallic，sheen等等
+
+具体的表达很复杂，暂时不展开讲
 
